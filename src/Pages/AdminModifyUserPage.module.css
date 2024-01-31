@@ -1,0 +1,97 @@
+.adminContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  width: 95%;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.adminHeader {
+  margin: 0;
+  margin-bottom: 24px;
+  font-size: var(--title-large);
+}
+
+@media (prefers-color-scheme: dark) {
+  .adminHeader {
+    color: var(--dark-text);
+  }
+}
+
+/* 유저 일정 변경 창 */
+.updateUserModalContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.userInfoContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userName {
+  font-size: var(--text-large);
+  font-weight: 400;
+}
+
+.userInfo {
+  font-size: var(--caption-large);
+  font-weight: 400;
+}
+
+.userDate {
+  margin: 12px 0;
+  font-size: var(--caption-large);
+  font-weight: 600;
+}
+
+.dropDownContainer {
+  display: flex;
+  justify-content: stretch;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.leaveDropDown {
+  flex: 1;
+}
+
+.updateButtonContainer {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.updateButton {
+  width: 50%;
+}
+
+.errorMessage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50px;
+  margin: 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .userName,
+  .userInfo,
+  .userDate {
+    color: var(--dark-text);
+  }
+}

@@ -1,0 +1,205 @@
+.manittoContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 80px 0;
+}
+
+.manittoHeader {
+  margin: 8px 0;
+}
+
+.manittoHideAlertText {
+  margin: 0;
+  color: var(--gray04);
+}
+
+.manittoImage {
+  width: 300px;
+  max-width: 100%;
+  height: 300px;
+}
+
+.manittoInfo {
+  margin: 0 0.5rem;
+  margin-top: 16px;
+  font-size: var(--text-large);
+  font-weight: 700;
+}
+
+.manittoLeaveDateText {
+  margin: 0;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  font-size: var(--caption-large);
+  color: var(--gray04);
+}
+
+.manittoMissionDifficulty {
+  display: flex;
+  gap: 24px;
+}
+
+.manittoMissionHeaderText {
+  text-align: center;
+  font-size: var(--text-large);
+  color: var(--gray04);
+  margin: 0;
+  margin-bottom: 4px;
+}
+
+.manittoMissionText {
+  text-align: center;
+  font-size: var(--text-large);
+  color: var(--gray04);
+  margin: 16px 0.5rem;
+}
+
+.manittoDescription {
+  margin: 6px 0.5rem;
+  font-size: var(--caption-middle);
+  text-align: center;
+  color: var(--gray04);
+}
+
+.exitButton {
+  margin: 16px 0;
+  background-color: var(--gray01);
+  color: var(--purple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .exitButton:hover {
+    background-color: var(--gray01);
+    color: #9982ed;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .manittoHeader,
+  .manittoHideAlertText,
+  .manittoInfo,
+  .manittoLeaveDateText,
+  .manittoMissionHeaderText,
+  .manittoMissionText,
+  .manittoDescription {
+    color: var(--dark-text);
+  }
+}
+
+/* 퇴거 확인 메시지창 */
+
+.confirmModalContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.confirmModalHeader {
+  margin: 8px 0;
+  font-size: var(--text-large);
+  font-weight: 400;
+}
+
+.confirmModalHeader .purple {
+  color: var(--purple);
+}
+
+.confirmModalText {
+  font-size: var(--caption-large);
+  color: var(--gray04);
+  margin: 0;
+  margin-bottom: 20px;
+}
+
+.confirmButtonContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.confirmButton {
+  width: 60%;
+}
+
+.errorMessage {
+  position: absolute;
+  top: 50px;
+  margin: 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 300px) {
+  .confirmModalHeader {
+    font-size: var(--text-middle);
+  }
+
+  .confirmModalText {
+    font-size: var(--caption-middle);
+  }
+}
+
+.completeModalContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.completeModalHeader {
+  margin: 8px 0;
+  font-size: var(--title-middle);
+  font-weight: 400;
+}
+
+.completeModalText {
+  margin: 8px 0;
+  font-size: var(--caption-large);
+  color: var(--gray04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .confirmModalHeader,
+  .confirmModalText,
+  .completeModalHeader,
+  .completeModalText {
+    color: var(--dark-text);
+  }
+}
+
+/* 마니또 매칭 대기 화면 */
+
+.manittoMatchingImage {
+  width: 200px;
+  max-width: 100%;
+  height: 200px;
+}
+
+.manittoMatchingHeader {
+  margin: 8px 0;
+  font-size: var(--title-large);
+  font-weight: 700;
+}
+
+.manittoMatchingDescription {
+  margin: 0;
+  font-size: var(--caption-middle);
+  font-weight: 400;
+  color: var(--gray04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .manittoMatchingHeader,
+  .manittoMatchingDescription {
+    color: var(--dark-text);
+  }
+}

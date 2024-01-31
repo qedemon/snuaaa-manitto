@@ -1,0 +1,113 @@
+.adminContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 80px 0;
+  width: 90%;
+  max-width: 450px;
+}
+
+.adminImage {
+  width: 90%;
+  max-width: 200px;
+}
+
+.adminHeader {
+  margin: 8px 0;
+  margin-bottom: 28px;
+}
+
+.adminButton {
+  margin: 12px 0;
+  width: 50%;
+  max-width: 150px;
+}
+
+.adminButton.gray {
+  background-color: var(--gray01);
+  color: var(--purple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .grayButton:hover {
+    background-color: var(--gray01);
+    color: #9982ed;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .adminHeader {
+    color: var(--dark-text);
+  }
+}
+
+/* 배포 확인 메세지창 */
+.confirmModalContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.confirmModalHeader {
+  margin: 8px 0;
+  font-size: var(--text-large);
+  font-weight: 400;
+}
+
+.confirmModalHeader .purple {
+  color: var(--purple);
+}
+
+.confirmModalText {
+  font-size: var(--caption-large);
+  color: var(--gray04);
+  margin: 0;
+  margin-bottom: 20px;
+}
+
+.confirmButtonContainer,
+.resultButtonContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.confirmButton {
+  width: 60%;
+}
+
+.errorMessage {
+  position: absolute;
+  top: 65px;
+  margin: 0;
+  text-align: center;
+  font-size: 10px;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+.confirmModalContent .errorMessage {
+  top: 50px;
+}
+
+@media screen and (max-width: 300px) {
+  .confirmModalHeader {
+    font-size: var(--text-middle);
+  }
+
+  .confirmModalText {
+    font-size: var(--caption-middle);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .confirmModalHeader,
+  .confirmModalText {
+    color: var(--dark-text);
+  }
+}

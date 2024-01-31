@@ -1,0 +1,90 @@
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 16px;
+  margin-bottom: 0px;
+  width: calc(100% - 32px);
+  gap: 24px;
+}
+
+.loginInputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.loginInput {
+  width: 100%;
+  height: 50px;
+  border: 2px solid var(--gray02);
+  border-radius: 8px;
+  background-color: var(--gray01);
+  padding: 0 16px;
+}
+
+.loginInput.error {
+  border: 2px solid var(--red);
+}
+
+.loginInput:focus {
+  outline: none;
+  border: 2px solid var(--purple);
+}
+
+.loginInput::placeholder {
+  color: #bdbdbd;
+}
+
+.passwordShowButton {
+  position: absolute;
+  right: 16px;
+  bottom: calc(50% - 12px);
+  margin: 0;
+  color: var(--purple);
+  cursor: pointer;
+}
+
+.loginDescription {
+  margin: 0;
+  margin-top: -8px;
+  text-align: center;
+  font-size: var(--caption-large);
+  color: var(--gray04);
+  word-break: keep-all;
+}
+
+.loginFind {
+  margin-top: -8px;
+  font-size: var(--caption-large);
+  text-align: center;
+}
+
+.buttonContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.loginButton {
+  margin-top: 60px;
+  width: 70%;
+  height: 55px;
+}
+
+.errorMessage {
+  position: absolute;
+  bottom: 60px;
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--red);
+}
+
+@media (prefers-color-scheme: dark) {
+  .loginDescription {
+    color: var(--dark-text);
+  }
+}

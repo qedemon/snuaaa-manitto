@@ -1,0 +1,15 @@
+.pageContainer {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  background-image: url("./Assets/Images/BackgroundShapeLight.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pageContainer {
+    background-image: url("./Assets/Images/BackgroundShapeDark.svg");
+  }
+}

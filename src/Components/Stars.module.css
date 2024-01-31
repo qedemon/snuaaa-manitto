@@ -1,0 +1,9 @@
+.star {
+  fill: var(--gray02);
+  transition-property: fill;
+  transition-duration: 0.2s;
+}
+
+.star.selected {
+  fill: var(--purple);
+}

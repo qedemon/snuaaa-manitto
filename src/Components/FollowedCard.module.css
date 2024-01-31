@@ -1,0 +1,51 @@
+.followedCardContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  background: linear-gradient(143deg, #613de4 37.51%, #9982ed 88.09%);
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.25);
+  padding: 16px;
+  text-align: center;
+}
+
+.followedName {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+
+.followedMajor {
+  margin: 0;
+  font-size: var(--caption-large);
+  font-weight: 600;
+  color: white;
+}
+
+.followedTime {
+  margin: 8px 0;
+  font-size: var(--caption-large);
+  color: var(--gray02);
+}
+
+.followedMissionDifficulty {
+  display: flex;
+  gap: 8px;
+}
+
+.followedMissionDifficulty svg {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+
+.followedMissionDescription {
+  margin: 8px 0;
+  font-size: var(--caption-large);
+  font-weight: 400;
+  color: white;
+  white-space: nowrap;
+}

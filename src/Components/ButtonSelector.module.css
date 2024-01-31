@@ -1,0 +1,43 @@
+.buttonSelectContainer {
+  display: flex;
+  position: relative;
+  justify-content: stretch;
+  align-items: center;
+  background-color: var(--gray01);
+  border: 1px solid var(--gray02);
+  border-radius: 9999px;
+}
+
+.buttonSelectSlider {
+  position: absolute;
+  background-color: #ffffff;
+  left: 0%;
+  height: 100%;
+  border-radius: 9999px;
+  z-index: 0;
+}
+
+.selectButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: none;
+  padding: 0;
+  height: 100%;
+  font-weight: 500;
+  color: var(--gray03);
+  cursor: default;
+  z-index: 1;
+  transition-property: color, font-weight;
+  transition-duration: 500ms;
+}
+
+.selectButton:not(.selected) {
+  cursor: pointer;
+}
+
+.selectButton.selected {
+  font-weight: 600;
+  color: var(--purple);
+}

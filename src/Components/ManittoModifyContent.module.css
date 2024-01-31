@@ -1,0 +1,55 @@
+.manittoModifyContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.daySelectContainer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.daySelectButton {
+  position: relative;
+  font-size: var(--text-middle);
+  padding: 8px 24px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.daySelectButton:nth-child(1) {
+  background-color: #ededed;
+  left: 0;
+  z-index: 3;
+}
+
+.daySelectButton:nth-child(2) {
+  background-color: #dadada;
+  left: -16px;
+  z-index: 2;
+}
+
+.daySelectButton:nth-child(3) {
+  background-color: #c7c7c7;
+  left: -32px;
+  z-index: 1;
+}
+
+.daySelectButton.selected {
+  background-color: white;
+  z-index: 4;
+}
+
+.daySelectButton:not(.selected) {
+  cursor: pointer;
+}
+
+.manittoContainer {
+  flex: 1;
+  background-color: white;
+  border-radius: 8px;
+  border-top-left-radius: 0;
+  padding: 16px 8px;
+  overflow: scroll;
+}

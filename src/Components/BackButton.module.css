@@ -1,0 +1,8 @@
+.backButton {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  margin: 0;
+  font-weight: 600;
+  cursor: pointer;
+}

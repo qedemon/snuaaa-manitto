@@ -1,0 +1,9 @@
+.logoutButton {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  margin: 0;
+  font-weight: 600;
+  color: var(--purple);
+  cursor: pointer;
+}

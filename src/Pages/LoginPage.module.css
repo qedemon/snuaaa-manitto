@@ -1,0 +1,26 @@
+.loginContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 80px 0;
+  max-width: 450px;
+  color: var(--light-text);
+  gap: 16px;
+}
+
+.loginImage {
+  width: 50%;
+}
+
+.loginHeader {
+  font-weight: 700;
+  font-size: var(--title-large);
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loginHeader {
+    color: var(--dark-text);
+  }
+}
