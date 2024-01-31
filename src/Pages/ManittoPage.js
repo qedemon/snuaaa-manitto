@@ -123,6 +123,77 @@ export default function ManittoPage() {
     setExitState(true);
   }
 
+  async function subscribe(){
+    async function postSubscription(userInfo, subscription){
+      return (
+        await dataConnect.post("/push/registerPush", 
+          {
+            user_id: userInfo.user_id,
+            subscription
+          }
+        )
+      ).data;
+    }
+    try{
+      if(!("serviceWorker" in navigator)){
+          throw new Error("serviceWorker not impelemented")
+      }
+      const vapidKey = await (
+          async()=>{
+              const {result, error, key} = (await dataConnect.get("/push/getVAPIDKey")).data;
+              if(result !==0){
+                  throw error;
+              }
+              return key.public;
+          }
+      )();
+      const userInfo = await (
+          async()=>{
+              const {result, error, origin, userInfo} = (await dataConnect.get("/user/whoami")).data;
+              if(result !== 0){
+                  throw error;
+              }
+              if(origin!=="local"){
+                  throw new Error("unregisterd user");
+              }
+              return userInfo
+          }
+      )();
+      const permission = await Notification.requestPermission();
+      if(permission === "denied"){
+          throw new Error("permission denied");
+      }
+
+      await navigator.serviceWorker.register(`serviceworker.js`);
+      const registration = await navigator.serviceWorker.ready;
+      
+      const pushSubscription = await registration.pushManager.subscribe(
+          {
+              userVisibleOnly: true,
+              applicationServerKey: vapidKey
+          }
+      );
+      await (
+          async()=>{
+              const {error, user} = await postSubscription(userInfo, pushSubscription);
+              if(error){
+                  throw error;
+              }
+              console.log(user);
+          }
+      )()
+    }
+    catch(error){
+        console.error(error);
+        alert(error);
+    }
+    finally{
+        //alert("돌아갑니다.");
+        console.log("back");
+        //history.back();
+    }
+  }
+
   // 마니또, 미션 데이터 업데이트
   useEffect(() => {
     if (user?.Mission) {
@@ -186,6 +257,7 @@ export default function ManittoPage() {
                   <div className={style.manittoContainer}>
                     <LogOutButton />
                     <h1 className={style.manittoHeader}>나의 마니또</h1>
+                    <button onClick={async (event)=>{event.stopPropagation(); await subscribe();}}>구독</button>
                     <p className={style.manittoHideAlertText}>
                       터치해서 숨기기
                     </p>
