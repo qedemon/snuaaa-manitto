@@ -110,6 +110,9 @@ export default function ManittoPage() {
   const [modalState, setModalState] = useState(false);
   const [exitState, setExitState] = useState(false);
 
+  const [subscription, setSubscription] = useState(null);
+  const [ableToSubscribe, setAbleToSubscribe] = useState(false);
+
   function showModal(e) {
     e.stopPropagation();
     setModalState(true);
@@ -159,38 +162,49 @@ export default function ManittoPage() {
               return userInfo
           }
       )();
-      const permission = await Notification.requestPermission();
+      /*const permission = await Notification.requestPermission();
       if(permission === "denied"){
           throw new Error("permission denied");
-      }
-
-      await navigator.serviceWorker.register(`serviceworker.js`);
-      const registration = await navigator.serviceWorker.ready;
-      
-      const pushSubscription = await registration.pushManager.subscribe(
-          {
+      }*/
+      if(navigator.serviceWorker){
+        await navigator.serviceWorker.register(`serviceworker.js`);
+        const registration = await navigator.serviceWorker.ready;
+        
+        const pushSubscription = (await registration.pushManager.getSubscription()) ||
+        (
+          await registration.pushManager.subscribe(
+            {
               userVisibleOnly: true,
               applicationServerKey: vapidKey
-          }
-      );
-      await (
-          async()=>{
-              const {error, user} = await postSubscription(userInfo, pushSubscription);
-              if(error){
-                  throw error;
-              }
-              console.log(user);
-          }
-      )()
+            }
+          )
+        );
+
+        await (
+            async()=>{
+                const {error, user} = await postSubscription(userInfo, pushSubscription);
+                if(error){
+                    throw error;
+                }
+                console.log(user);
+            }
+        )();
+        setSubscription(pushSubscription);
+        console.log(pushSubscription);
+      }
     }
     catch(error){
         console.error(error);
-        alert(error);
+        alert("아이폰은 홈화면에 추가해보도록 한다.");
     }
-    finally{
-        //alert("돌아갑니다.");
-        console.log("back");
-        //history.back();
+  };
+
+  async function unsubscribe(){
+    if(subscription){
+      const result = await subscription.unsubscribe();
+      if(result){
+        setSubscription(null);
+      }
     }
   }
 
@@ -245,6 +259,22 @@ export default function ManittoPage() {
     };
   }, []);
 
+  // subscription 체크
+  useEffect(
+    ()=>{
+      (
+        async ()=>{
+          setAbleToSubscribe(navigator.serviceWorker);
+          if(navigator.serviceWorker){
+            const registration = await navigator.serviceWorker.ready;
+            setSubscription(await registration.pushManager?.getSubscription());
+          }
+        }
+      )();
+    },
+    []
+  )
+
   return (
     <>
       {policy && (
@@ -257,7 +287,7 @@ export default function ManittoPage() {
                   <div className={style.manittoContainer}>
                     <LogOutButton />
                     <h1 className={style.manittoHeader}>나의 마니또</h1>
-                    <button onClick={async (event)=>{event.stopPropagation(); await subscribe();}}>구독</button>
+                    <button disabled={!ableToSubscribe} onClick={async (event)=>{event.stopPropagation(); await (subscription?unsubscribe:subscribe)();}}>{subscription?"구독 중":"구독"}</button>
                     <p className={style.manittoHideAlertText}>
                       터치해서 숨기기
                     </p>
