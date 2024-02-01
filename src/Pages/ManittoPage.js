@@ -112,6 +112,7 @@ export default function ManittoPage() {
 
   const [subscription, setSubscription] = useState(null);
   const [ableToSubscribe, setAbleToSubscribe] = useState(false);
+  const [subscriptionPending, setSubscriptionPending] = useState(false);
 
   function showModal(e) {
     e.stopPropagation();
@@ -205,8 +206,12 @@ export default function ManittoPage() {
   }
 
   async function handleSubscribe(e) {
-    e.stopPropagation();
-    await (subscription ? unsubscribe : subscribe)();
+    setSubscriptionPending(true);
+    if (ableToSubscribe) {
+      e.stopPropagation();
+      await (subscription ? unsubscribe : subscribe)();
+    }
+    setSubscriptionPending(false);
   }
 
   // 마니또, 미션 데이터 업데이트
@@ -313,10 +318,10 @@ export default function ManittoPage() {
                     </Button>
                     <Button
                       className={style.subscribeButton}
-                      disabled={!ableToSubscribe}
                       onClick={handleSubscribe}
+                      disabled={subscriptionPending}
                     >
-                      {subscription ? "알람 설정" : "알람 설정 해제"}
+                      {subscription ? "알람 설정 해제" : "알람 설정"}
                     </Button>
                     {modalState &&
                       (!exitState ? (

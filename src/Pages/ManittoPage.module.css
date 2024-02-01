@@ -70,7 +70,8 @@
 }
 
 .subscribeButton {
-  margin: 16px 0;
+  width: 50%;
+  height: 50px;
 }
 
 @media (hover: hover) and (pointer: fine) {
