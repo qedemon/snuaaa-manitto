@@ -17,6 +17,8 @@ import Moon from "../Assets/Images/Moon.svg";
 import Check from "../Assets/Images/Check.svg";
 import style from "./ManittoPage.module.css";
 
+import {getAbleToSubscribe, getSubscription, subscribe, unsubscribe} from "../Utils/subscription";
+
 function ExitConfirmModal({ onConfirm, onClose }) {
   const { user, updateUser } = useAuth(true);
 
@@ -127,88 +129,24 @@ export default function ManittoPage() {
     setExitState(true);
   }
 
-  async function subscribe() {
-    async function postSubscription(userInfo, subscription) {
-      return (
-        await dataConnect.post("/push/registerPush", {
-          user_id: userInfo.user_id,
-          subscription,
-        })
-      ).data;
-    }
-    try {
-      if (!("serviceWorker" in navigator)) {
-        throw new Error("serviceWorker not impelemented");
-      }
-      const vapidKey = await (async () => {
-        const { result, error, key } = (
-          await dataConnect.get("/push/getVAPIDKey")
-        ).data;
-        if (result !== 0) {
-          throw error;
-        }
-        return key.public;
-      })();
-      const userInfo = await (async () => {
-        const { result, error, origin, userInfo } = (
-          await dataConnect.get("/user/whoami")
-        ).data;
-        if (result !== 0) {
-          throw error;
-        }
-        if (origin !== "local") {
-          throw new Error("unregisterd user");
-        }
-        return userInfo;
-      })();
-
-      /*const permission = await Notification.requestPermission();
-      if(permission === "denied"){
-          throw new Error("permission denied");
-      }*/
-
-      if (navigator.serviceWorker) {
-        await navigator.serviceWorker.register(`serviceworker.js`);
-        const registration = await navigator.serviceWorker.ready;
-
-        const pushSubscription =
-          (await registration.pushManager.getSubscription()) ||
-          (await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidKey,
-          }));
-
-        await (async () => {
-          const { error /*, user*/ } = await postSubscription(
-            userInfo,
-            pushSubscription
-          );
-          if (error) {
-            throw error;
-          }
-        })();
-        setSubscription(pushSubscription);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("알람 설정 도중 에러가 발생하였습니다.");
-    }
-  }
-
-  async function unsubscribe() {
-    if (subscription) {
-      const result = await subscription.unsubscribe();
-      if (result) {
-        setSubscription(null);
-      }
-    }
-  }
-
   async function handleSubscribe(e) {
     e.stopPropagation();
     setSubscriptionPending(true);
     if (ableToSubscribe) {
-      await (subscription ? unsubscribe : subscribe)();
+      if(subscription){
+        if(await unsubscribe(subscription)){
+          setSubscription(null);
+        }
+      }
+      else{
+        const {error, subscription: pushSubscription} = await subscribe();
+        if(error){
+          alert(error.message);
+        }
+        else{
+          setSubscription(pushSubscription);
+        }
+      }
     }
     setSubscriptionPending(false);
   }
@@ -264,10 +202,10 @@ export default function ManittoPage() {
   // subscription 체크
   useEffect(() => {
     (async () => {
-      setAbleToSubscribe(navigator.serviceWorker);
-      if (navigator.serviceWorker) {
-        const registration = await navigator.serviceWorker.ready;
-        setSubscription(await registration.pushManager?.getSubscription());
+      const ableToSubscribe = getAbleToSubscribe();
+      setAbleToSubscribe(ableToSubscribe);
+      if (ableToSubscribe) {
+        setSubscription(await getSubscription());
       }
     })();
   }, []);
@@ -332,7 +270,20 @@ export default function ManittoPage() {
           <p className={style.manittoMatchingDescription}>
             마니또가 매칭될 때 까지 잠시만 기다려주세요.
           </p>
+          {ableToSubscribe !== null ? (
+              <Button
+                className={style.subscribeButton}
+                onClick={handleSubscribe}
+                disabled={subscriptionPending}
+              >
+                {subscription ? "알람 설정 해제" : "알람 설정"}
+              </Button>
+            ) : (
+              <></>
+            )
+          }
         </div>
+        
       )}
     </>
   );
