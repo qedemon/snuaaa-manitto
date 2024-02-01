@@ -69,6 +69,10 @@
   color: var(--purple);
 }
 
+.subscribeButton {
+  margin: 16px 0;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .exitButton:hover {
     background-color: var(--gray01);

@@ -126,86 +126,87 @@ export default function ManittoPage() {
     setExitState(true);
   }
 
-  async function subscribe(){
-    async function postSubscription(userInfo, subscription){
+  async function subscribe() {
+    async function postSubscription(userInfo, subscription) {
       return (
-        await dataConnect.post("/push/registerPush", 
-          {
-            user_id: userInfo.user_id,
-            subscription
-          }
-        )
+        await dataConnect.post("/push/registerPush", {
+          user_id: userInfo.user_id,
+          subscription,
+        })
       ).data;
     }
-    try{
-      if(!("serviceWorker" in navigator)){
-          throw new Error("serviceWorker not impelemented")
+    try {
+      if (!("serviceWorker" in navigator)) {
+        throw new Error("serviceWorker not impelemented");
       }
-      const vapidKey = await (
-          async()=>{
-              const {result, error, key} = (await dataConnect.get("/push/getVAPIDKey")).data;
-              if(result !==0){
-                  throw error;
-              }
-              return key.public;
-          }
-      )();
-      const userInfo = await (
-          async()=>{
-              const {result, error, origin, userInfo} = (await dataConnect.get("/user/whoami")).data;
-              if(result !== 0){
-                  throw error;
-              }
-              if(origin!=="local"){
-                  throw new Error("unregisterd user");
-              }
-              return userInfo
-          }
-      )();
+      const vapidKey = await (async () => {
+        const { result, error, key } = (
+          await dataConnect.get("/push/getVAPIDKey")
+        ).data;
+        if (result !== 0) {
+          throw error;
+        }
+        return key.public;
+      })();
+      const userInfo = await (async () => {
+        const { result, error, origin, userInfo } = (
+          await dataConnect.get("/user/whoami")
+        ).data;
+        if (result !== 0) {
+          throw error;
+        }
+        if (origin !== "local") {
+          throw new Error("unregisterd user");
+        }
+        return userInfo;
+      })();
+
       /*const permission = await Notification.requestPermission();
       if(permission === "denied"){
           throw new Error("permission denied");
       }*/
-      if(navigator.serviceWorker){
+
+      if (navigator.serviceWorker) {
         await navigator.serviceWorker.register(`serviceworker.js`);
         const registration = await navigator.serviceWorker.ready;
-        
-        const pushSubscription = (await registration.pushManager.getSubscription()) ||
-        (
-          await registration.pushManager.subscribe(
-            {
-              userVisibleOnly: true,
-              applicationServerKey: vapidKey
-            }
-          )
-        );
 
-        await (
-            async()=>{
-                const {error, user} = await postSubscription(userInfo, pushSubscription);
-                if(error){
-                    throw error;
-                }
-                console.log(user);
-            }
-        )();
+        const pushSubscription =
+          (await registration.pushManager.getSubscription()) ||
+          (await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: vapidKey,
+          }));
+
+        await (async () => {
+          const { error, user } = await postSubscription(
+            userInfo,
+            pushSubscription
+          );
+          if (error) {
+            throw error;
+          }
+          console.log(user);
+        })();
         setSubscription(pushSubscription);
         console.log(pushSubscription);
       }
+    } catch (error) {
+      console.error(error);
     }
-    catch(error){
-        console.error(error);
-        alert("아이폰은 홈화면에 추가해보도록 한다.");
-    }
-  };
+  }
 
-  async function unsubscribe(){
-    if(subscription){
+  async function unsubscribe() {
+    if (subscription) {
       const result = await subscription.unsubscribe();
-      if(result){
+      if (result) {
         setSubscription(null);
       }
     }
+  }
+
+  async function handleSubscribe(e) {
+    e.stopPropagation();
+    await (subscription ? unsubscribe : subscribe)();
   }
 
   // 마니또, 미션 데이터 업데이트
@@ -260,20 +261,15 @@ export default function ManittoPage() {
   }, []);
 
   // subscription 체크
-  useEffect(
-    ()=>{
-      (
-        async ()=>{
-          setAbleToSubscribe(navigator.serviceWorker);
-          if(navigator.serviceWorker){
-            const registration = await navigator.serviceWorker.ready;
-            setSubscription(await registration.pushManager?.getSubscription());
-          }
-        }
-      )();
-    },
-    []
-  )
+  useEffect(() => {
+    (async () => {
+      setAbleToSubscribe(navigator.serviceWorker);
+      if (navigator.serviceWorker) {
+        const registration = await navigator.serviceWorker.ready;
+        setSubscription(await registration.pushManager?.getSubscription());
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -287,7 +283,6 @@ export default function ManittoPage() {
                   <div className={style.manittoContainer}>
                     <LogOutButton />
                     <h1 className={style.manittoHeader}>나의 마니또</h1>
-                    <button disabled={!ableToSubscribe} onClick={async (event)=>{event.stopPropagation(); await (subscription?unsubscribe:subscribe)();}}>{subscription?"구독 중":"구독"}</button>
                     <p className={style.manittoHideAlertText}>
                       터치해서 숨기기
                     </p>
@@ -315,6 +310,13 @@ export default function ManittoPage() {
                     </p>
                     <Button className={style.exitButton} onClick={showModal}>
                       퇴거하기
+                    </Button>
+                    <Button
+                      className={style.subscribeButton}
+                      disabled={!ableToSubscribe}
+                      onClick={handleSubscribe}
+                    >
+                      {subscription ? "알람 설정" : "알람 설정 해제"}
                     </Button>
                     {modalState &&
                       (!exitState ? (
