@@ -31,7 +31,10 @@ function App() {
               />
               <Route path="modify-user" element={<AdminModifyUserPage />} />
             </Route>
-            <Route path="/test" element={<TestPage />} />
+            <Route
+              path="/a71a8679-ff99-4a79-b38e-2aee1689cd0b"
+              element={<TestPage />}
+            />
             <Route path="*" element={<ManittoPage />} />
           </Routes>
         </div>

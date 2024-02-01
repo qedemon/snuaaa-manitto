@@ -179,20 +179,19 @@ export default function ManittoPage() {
           }));
 
         await (async () => {
-          const { error, user } = await postSubscription(
+          const { error /*, user*/ } = await postSubscription(
             userInfo,
             pushSubscription
           );
           if (error) {
             throw error;
           }
-          console.log(user);
         })();
         setSubscription(pushSubscription);
-        console.log(pushSubscription);
       }
     } catch (error) {
       console.error(error);
+      alert("알람 설정 도중 에러가 발생하였습니다.");
     }
   }
 
@@ -206,9 +205,9 @@ export default function ManittoPage() {
   }
 
   async function handleSubscribe(e) {
+    e.stopPropagation();
     setSubscriptionPending(true);
     if (ableToSubscribe) {
-      e.stopPropagation();
       await (subscription ? unsubscribe : subscribe)();
     }
     setSubscriptionPending(false);
@@ -223,17 +222,14 @@ export default function ManittoPage() {
     if (user?.following) {
       const nextManitto = user.following.find((el) => el.isValid);
       if (nextManitto) {
-        const { currentDate: leaveDate, currentTime: leaveTime } = timeToText(
-          nextManitto.exit_at
-        );
+        const leaveTime = timeToText(nextManitto.exit_at);
         setManitto({
           ...nextManitto,
-          leaveDate,
           leaveTime,
         });
       }
     }
-  }, [user]);
+  }, [policy, user]);
 
   // 유저 상태에 따라 다른 페이지로 리다이렉트
   useEffect(() => {
@@ -278,79 +274,71 @@ export default function ManittoPage() {
 
   return (
     <>
-      {policy && (
+      {policy?.SHOW_FOLLOWEE ? (
         <>
-          {policy?.SHOW_FOLLOWEE ? (
+          {mission && manitto && (
             <>
-              {user?.valid && mission && manitto && (
-                <>
-                  <HideFilter hide={hideState} />
-                  <div className={style.manittoContainer}>
-                    <LogOutButton />
-                    <h1 className={style.manittoHeader}>나의 마니또</h1>
-                    <p className={style.manittoHideAlertText}>
-                      터치해서 숨기기
-                    </p>
-                    <img className={style.manittoImage} src={Moon} alt="Moon" />
-                    <p className={style.manittoInfo}>
-                      {manitto.name} - {manitto.col_no}학번 {manitto.major}
-                    </p>
-                    <p className={style.manittoLeaveDateText}>
-                      {manitto.leaveDate} {manitto.leaveTime} 퇴거 예정
-                    </p>
-                    <p className={style.manittoMissionHeaderText}>
-                      마니또 미션
-                    </p>
-                    <Stars
-                      className={style.manittoMissionDifficulty}
-                      value={mission.difficulty}
+              <HideFilter hide={hideState} />
+              <div className={style.manittoContainer}>
+                <LogOutButton />
+                <h1 className={style.manittoHeader}>나의 마니또</h1>
+                <p className={style.manittoHideAlertText}>터치해서 숨기기</p>
+                <img className={style.manittoImage} src={Moon} alt="Moon" />
+                <p className={style.manittoInfo}>
+                  {manitto.name} - {manitto.col_no}학번 {manitto.major}
+                </p>
+                <p className={style.manittoLeaveDateText}>
+                  {manitto.leaveTime} 퇴거 예정
+                </p>
+                <p className={style.manittoMissionHeaderText}>마니또 미션</p>
+                <Stars
+                  className={style.manittoMissionDifficulty}
+                  value={mission.difficulty}
+                />
+                <p className={style.manittoMissionText}>
+                  {mission.description}
+                </p>
+                <p className={style.manittoDescription}>
+                  주의: 마니또 예상 퇴거시간에 따라 나의 마니또가 변경 될 수
+                  있습니다. <br />
+                  마니또 배정은 식사시간 업데이트로 반영됩니다.
+                </p>
+                <Button className={style.exitButton} onClick={showModal}>
+                  퇴거하기
+                </Button>
+                {ableToSubscribe !== null ? (
+                  <Button
+                    className={style.subscribeButton}
+                    onClick={handleSubscribe}
+                    disabled={subscriptionPending}
+                  >
+                    {subscription ? "알람 설정 해제" : "알람 설정"}
+                  </Button>
+                ) : (
+                  <></>
+                )}
+                {modalState &&
+                  (!exitState ? (
+                    <ExitConfirmModal
+                      onConfirm={confirmExit}
+                      onClose={closeModal}
                     />
-                    <p className={style.manittoMissionText}>
-                      {mission.description}
-                    </p>
-                    <p className={style.manittoDescription}>
-                      주의: 마니또 예상 퇴거시간에 따라 나의 마니또가 변경 될 수
-                      있습니다. <br />
-                      마니또 배정은 식사시간 업데이트로 반영됩니다.
-                    </p>
-                    <Button className={style.exitButton} onClick={showModal}>
-                      퇴거하기
-                    </Button>
-                    <Button
-                      className={style.subscribeButton}
-                      onClick={handleSubscribe}
-                      disabled={subscriptionPending}
-                    >
-                      {subscription ? "알람 설정 해제" : "알람 설정"}
-                    </Button>
-                    {modalState &&
-                      (!exitState ? (
-                        <ExitConfirmModal
-                          onConfirm={confirmExit}
-                          onClose={closeModal}
-                        />
-                      ) : (
-                        <ExitCompleteModal onClose={closeModal} />
-                      ))}
-                  </div>
-                </>
-              )}
+                  ) : (
+                    <ExitCompleteModal onClose={closeModal} />
+                  ))}
+              </div>
             </>
-          ) : (
-            <div className={style.manittoContainer}>
-              <LogOutButton />
-              <img
-                className={style.manittoMatchingImage}
-                src={Moon}
-                alt="Moon"
-              />
-              <h1 className={style.manittoMatchingHeader}>Matching...</h1>
-              <p className={style.manittoMatchingDescription}>
-                마니또가 매칭될 때 까지 잠시만 기다려주세요.
-              </p>
-            </div>
           )}
         </>
+      ) : (
+        <div className={style.manittoContainer}>
+          <LogOutButton />
+          <img className={style.manittoMatchingImage} src={Moon} alt="Moon" />
+          <h1 className={style.manittoMatchingHeader}>Matching...</h1>
+          <p className={style.manittoMatchingDescription}>
+            마니또가 매칭될 때 까지 잠시만 기다려주세요.
+          </p>
+        </div>
       )}
     </>
   );
