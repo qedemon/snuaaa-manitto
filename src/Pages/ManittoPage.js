@@ -17,7 +17,12 @@ import Moon from "../Assets/Images/Moon.svg";
 import Check from "../Assets/Images/Check.svg";
 import style from "./ManittoPage.module.css";
 
-import {getAbleToSubscribe, getSubscription, subscribe, unsubscribe} from "../Utils/subscription";
+import {
+  getAbleToSubscribe,
+  getSubscription,
+  subscribe,
+  unsubscribe,
+} from "../Utils/Subscription";
 
 function ExitConfirmModal({ onConfirm, onClose }) {
   const { user, updateUser } = useAuth(true);
@@ -133,17 +138,15 @@ export default function ManittoPage() {
     e.stopPropagation();
     setSubscriptionPending(true);
     if (ableToSubscribe) {
-      if(subscription){
-        if(await unsubscribe(subscription)){
+      if (subscription) {
+        if (await unsubscribe(subscription)) {
           setSubscription(null);
         }
-      }
-      else{
-        const {error, subscription: pushSubscription} = await subscribe();
-        if(error){
+      } else {
+        const { error, subscription: pushSubscription } = await subscribe();
+        if (error) {
           alert(error.message);
-        }
-        else{
+        } else {
           setSubscription(pushSubscription);
         }
       }
@@ -271,19 +274,17 @@ export default function ManittoPage() {
             마니또가 매칭될 때 까지 잠시만 기다려주세요.
           </p>
           {ableToSubscribe !== null ? (
-              <Button
-                className={style.subscribeButton}
-                onClick={handleSubscribe}
-                disabled={subscriptionPending}
-              >
-                {subscription ? "알람 설정 해제" : "알람 설정"}
-              </Button>
-            ) : (
-              <></>
-            )
-          }
+            <Button
+              className={style.subscribeButton}
+              onClick={handleSubscribe}
+              disabled={subscriptionPending}
+            >
+              {subscription ? "알람 설정 해제" : "알람 설정"}
+            </Button>
+          ) : (
+            <></>
+          )}
         </div>
-        
       )}
     </>
   );

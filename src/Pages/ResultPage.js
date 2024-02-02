@@ -53,52 +53,39 @@ export default function ResultPage() {
 
   return (
     <>
-      {policy && (
-        <>
-          {policy?.SHOW_FOLLOWER ? (
+      {policy?.SHOW_FOLLOWER && users ? (
+        <div className={style.resultContainer}>
+          <LogOutButton />
+          <h1 className={style.resultHeader}>마니또 결과</h1>
+          {selectedUser && (
             <>
-              {users && (
-                <div className={style.resultContainer}>
-                  <LogOutButton />
-                  <h1 className={style.resultHeader}>마니또 결과</h1>
-                  {selectedUser && (
-                    <>
-                      <p className={style.followedText}>
-                        <span className={style.name}>{selectedUser.name}</span>
-                        의 천사는
-                      </p>
-                      <ul className={style.followedContainer}>
-                        {selectedUser.followed.map((el, idx) => (
-                          <FollowedCard key={idx} value={el} />
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                  <UsersList
-                    className={style.userList}
-                    values={users}
-                    value={selectedUser}
-                    onClick={changeSelectedUser}
-                  />
-                </div>
-              )}
-            </>
-          ) : (
-            <div className={`${style.resultContainer} ${style.center}`}>
-              <LogOutButton />
-              <img
-                className={style.resultMatchingImage}
-                src={Moon}
-                alt="Moon"
-              />
-              <h1 className={style.resultMatchingHeader}>See you next time</h1>
-              <p className={style.resultMatchingDescription}>
-                마니또 결과를 기다려주세요..!
+              <p className={style.followedText}>
+                <span className={style.name}>{selectedUser.name}</span>의 천사는
               </p>
-            </div>
+              <ul className={style.followedContainer}>
+                {selectedUser.followed.map((el, idx) => (
+                  <FollowedCard key={idx} value={el} />
+                ))}
+              </ul>
+            </>
           )}
-        </>
-      )}{" "}
+          <UsersList
+            className={style.userList}
+            values={users}
+            value={selectedUser}
+            onClick={changeSelectedUser}
+          />
+        </div>
+      ) : (
+        <div className={`${style.resultContainer} ${style.center}`}>
+          <LogOutButton />
+          <img className={style.resultMatchingImage} src={Moon} alt="Moon" />
+          <h1 className={style.resultMatchingHeader}>See you next time</h1>
+          <p className={style.resultMatchingDescription}>
+            마니또 결과를 기다려주세요..!
+          </p>
+        </div>
+      )}
     </>
   );
 }

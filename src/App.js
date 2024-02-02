@@ -11,7 +11,7 @@ import style from "./App.module.css";
 import { PolicyProvider } from "./Contexts/PolicyContext";
 import AdminModifyManittoPage from "./Pages/AdminModifyManittoPage";
 import AdminModifyUserPage from "./Pages/AdminModifyUserPage";
-import TestPage from "./Pages/TestPage";
+// import TestPage from "./Pages/TestPage";
 
 function App() {
   return (
@@ -31,10 +31,10 @@ function App() {
               />
               <Route path="modify-user" element={<AdminModifyUserPage />} />
             </Route>
-            <Route
+            {/* <Route
               path="/a71a8679-ff99-4a79-b38e-2aee1689cd0b"
               element={<TestPage />}
-            />
+            /> */}
             <Route path="*" element={<ManittoPage />} />
           </Routes>
         </div>
