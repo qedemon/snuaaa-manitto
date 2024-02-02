@@ -14,6 +14,7 @@ const AuthContext = createContext({
   login: () => {},
   logout: () => {},
   register: () => {},
+  getUser: () => {},
   updateUser: () => {},
 });
 
@@ -102,6 +103,7 @@ export function AuthProvider({ children }) {
         login,
         logout,
         register,
+        getUser,
         updateUser,
       }}
     >
