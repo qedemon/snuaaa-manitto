@@ -38,8 +38,10 @@
   margin: 8px 0;
   padding: 0;
   width: 95%;
+  height: 60dvh;
   list-style: none;
   gap: 8px;
+  overflow: auto;
 }
 
 .userList {

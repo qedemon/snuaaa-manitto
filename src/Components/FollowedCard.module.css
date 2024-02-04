@@ -9,7 +9,7 @@
   background: linear-gradient(143deg, #613de4 37.51%, #9982ed 88.09%);
   box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.25);
   padding: 16px;
-  height: 170px;
+  height: 200px;
   overflow: hidden;
   text-align: center;
 }
@@ -50,5 +50,4 @@
   font-size: var(--caption-large);
   font-weight: 400;
   color: white;
-  white-space: nowrap;
 }
