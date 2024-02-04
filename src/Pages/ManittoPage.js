@@ -9,7 +9,6 @@ import { timeToText } from "../Utils/Time";
 
 import Modal from "../Components/Modal";
 import LogOutButton from "../Components/LogOutButton";
-import RefreshButton from "../Components/RefreshButton";
 import HideFilter from "../Components/HideFilter";
 import Stars from "../Components/Stars";
 import Button from "../Components/Button";
@@ -108,8 +107,8 @@ function ExitCompleteModal({ onClose }) {
 
 export default function ManittoPage() {
   const navigate = useNavigate();
-  const { user, getUser } = useAuth(true);
-  const { policy, getPolicy } = usePolicy();
+  const { user } = useAuth(true);
+  const { policy } = usePolicy();
 
   const [mission, setMission] = useState(null);
   const [manitto, setManitto] = useState(null);
@@ -133,14 +132,6 @@ export default function ManittoPage() {
 
   function confirmExit() {
     setExitState(true);
-  }
-
-  async function handleRefresh(e) {
-    e.stopPropagation();
-    try {
-      await getUser();
-      await getPolicy();
-    } catch {}
   }
 
   async function handleSubscribe(e) {
@@ -228,7 +219,6 @@ export default function ManittoPage() {
         <>
           <HideFilter hide={hideState} />
           <div className={style.manittoContainer}>
-            <RefreshButton onClick={handleRefresh} />
             <LogOutButton />
             <h1 className={style.manittoHeader}>나의 마니또</h1>
             <p className={style.manittoHideAlertText}>터치해서 숨기기</p>
@@ -259,7 +249,7 @@ export default function ManittoPage() {
                 onClick={handleSubscribe}
                 disabled={subscriptionPending}
               >
-                {subscription ? "알람 해제" : "알람 설정"}
+                {subscription ? "알람 설정 해제" : "알람 설정"}
               </Button>
             ) : (
               <></>
@@ -277,7 +267,6 @@ export default function ManittoPage() {
         </>
       ) : (
         <div className={style.manittoContainer}>
-          <RefreshButton onClick={handleRefresh} />
           <LogOutButton />
           <img className={style.manittoMatchingImage} src={Moon} alt="Moon" />
           <h1 className={style.manittoMatchingHeader}>Matching...</h1>
@@ -290,7 +279,7 @@ export default function ManittoPage() {
               onClick={handleSubscribe}
               disabled={subscriptionPending}
             >
-              {subscription ? "알람 해제" : "알람 설정"}
+              {subscription ? "알람 설정 해제" : "알람 설정"}
             </Button>
           ) : (
             <></>
