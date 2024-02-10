@@ -8,6 +8,6 @@ self.addEventListener("push", (event)=>{
 });
 
 self.addEventListener("notificationclick", (event)=>{
-    self.clients.openWindow('https://manitto.nova.snuaaa.net:8200/');
+    self.clients.openWindow('https://manitto.nova.snuaaa.net:9889/');
     //event.notification.close();
 })

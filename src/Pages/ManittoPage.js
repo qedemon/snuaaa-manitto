@@ -182,11 +182,11 @@ export default function ManittoPage() {
       } else {
         if (!user?.isEnrolled) {
           navigate("/enroll");
-        } else if (new Date(user?.Schedule?.exit_at) < Date.now()) {
+        } /*else if (new Date(user?.Schedule?.exit_at) < Date.now()) {
           if (!modalState) {
             navigate("/result");
           }
-        }
+        }*/
       }
     }
   }, [user, policy, modalState, navigate]);

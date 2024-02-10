@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken } from "../Utils/Cookie";
 
 const instance = axios.create({
-  baseURL: "https://api.nova.snuaaa.net:9885/manitto",
+  baseURL: process.env.REACT_APP_API_HOST,
 });
 
 const request = {
