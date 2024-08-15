@@ -65,7 +65,7 @@ export default function TestPage() {
 
   return (
     <>
-      {user?.valid && user?.isEnrolled && (
+      {user?.valid && (
         <div style={style.testContainer}>
           <LogOutButton />
           <Button

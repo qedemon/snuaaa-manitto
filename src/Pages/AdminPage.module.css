@@ -20,8 +20,9 @@
 
 .adminButton {
   margin: 12px 0;
-  width: 50%;
+  width: 60%;
   max-width: 150px;
+  white-space: nowrap;
 }
 
 .adminButton.gray {

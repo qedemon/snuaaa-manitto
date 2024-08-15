@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../Contexts/AuthContext";
-import dataConnect from "../Connections/NovaConnection";
 import { usePolicy } from "../Contexts/PolicyContext";
+import { useAuth } from "../Contexts/AuthContext";
+import useAsync from "../Hooks/useAsync";
+import dataConnect from "../Connections/NovaConnection";
 
 import ManittoModifyContent from "../Components/ManittoModifyContent";
 import ButtonSelector from "../Components/ButtonSelector";
@@ -13,6 +14,20 @@ import Button from "../Components/Button";
 import RightArrow from "../Assets/Images/RightArrow.svg";
 import Cycle from "../Assets/Images/Cycle.svg";
 import style from "./AdminModifyManittoPage.module.css";
+import Spinner from "../Components/Spinner";
+
+function Loading() {
+  return (
+    <div
+      className={style.loading}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <Spinner />
+    </div>
+  );
+}
 
 export default function AdminModifyManittoPage() {
   const navigate = useNavigate();
@@ -39,45 +54,66 @@ export default function AdminModifyManittoPage() {
   }
 
   async function postConnectionDocumentList() {
-    [0, 1, 2].forEach(async (idx) => {
-      const data = {
-        day: idx,
-        data: modifiedConnectionDocumentList[idx],
-      };
-      const response = await dataConnect.post(
-        "connection/postConnectionDocument",
-        data
-      );
-      if (response.data.result === 0) {
-        setConnectionDocumentList((prevConnectionDocumentList) => ({
-          ...prevConnectionDocumentList,
-          [idx]: response.data.data,
-        }));
-        updatePolicy({
-          SHOW_FOLLOWEE: true,
-        });
+    try {
+      async function postConnectionDocument(date) {
+        const data = {
+          day: date,
+          data: modifiedConnectionDocumentList[date],
+        };
+        const response = await dataConnect.post(
+          "connection/postConnectionDocument",
+          data
+        );
+        if (response.data.result === 0) {
+          setConnectionDocumentList((prevConnectionDocumentList) => ({
+            ...prevConnectionDocumentList,
+            [date]: response.data.data,
+          }));
+          await updatePolicy({
+            SHOW_FOLLOWEE: true,
+          });
+        }
       }
-    });
+
+      const promises = [0, 1, 2].map(async (el) => {
+        await postConnectionDocument(el);
+      });
+
+      await Promise.all(promises);
+    } catch {
+      throw new Error("마니또 현황을 업데이트 하는 데 오류가 발생하였습니다.");
+    }
   }
 
   async function autoConnect(command) {
-    const data = {
-      command,
-      data: Object.values(modifiedConnectionDocumentList),
-    };
+    try {
+      const data = {
+        command,
+        data: Object.values(modifiedConnectionDocumentList),
+      };
 
-    const response = await dataConnect.post(
-      "/connection/requestAutoConnect",
-      data
-    );
-    if (response.data.result === 0) {
-      const nextModifiedConnectionDocument = {};
-      response.data.data.forEach((el, idx) => {
-        nextModifiedConnectionDocument[idx] = el;
-      });
-      setModifiedConnectionDocumentList(nextModifiedConnectionDocument);
+      const response = await dataConnect.post(
+        "/connection/requestAutoConnect",
+        data
+      );
+      if (response.data.result === 0) {
+        const nextModifiedConnectionDocument = {};
+        response.data.data.forEach((el, idx) => {
+          nextModifiedConnectionDocument[idx] = el;
+        });
+        setModifiedConnectionDocumentList(nextModifiedConnectionDocument);
+      }
+    } catch {
+      throw new Error("마니또 현황을 업데이트 하는 데 오류가 발생하였습니다.");
     }
   }
+
+  const [isPostPending, postError, postConnectionDocumentListAsync] = useAsync(
+    postConnectionDocumentList
+  );
+
+  const [isAutoConnectPending, autoConnectError, autoConnectAsync] =
+    useAsync(autoConnect);
 
   function copyDocumentList(documentList, index) {
     if (index !== undefined) {
@@ -213,6 +249,16 @@ export default function AdminModifyManittoPage() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    if (postError) {
+      alert(postError);
+    }
+
+    if (autoConnectError) {
+      alert(autoConnectError);
+    }
+  }, [postError, autoConnectError]);
+
   return (
     <>
       {user?.isAdmin && (
@@ -243,7 +289,7 @@ export default function AdminModifyManittoPage() {
                 <Button
                   className={`${style.controlButton} ${style.white}`}
                   onClick={() => {
-                    autoConnect("linear");
+                    autoConnectAsync("linear");
                   }}
                 >
                   <img src={RightArrow} alt="right arrow" />
@@ -251,14 +297,14 @@ export default function AdminModifyManittoPage() {
                 <Button
                   className={`${style.controlButton} ${style.white}`}
                   onClick={() => {
-                    autoConnect("circular");
+                    autoConnectAsync("circular");
                   }}
                 >
                   <img src={Cycle} alt="right arrow" />
                 </Button>
                 <Button
                   className={style.controlButton}
-                  onClick={postConnectionDocumentList}
+                  onClick={postConnectionDocumentListAsync}
                 >
                   배포
                 </Button>
@@ -267,6 +313,7 @@ export default function AdminModifyManittoPage() {
               ""
             )}
           </div>
+          {isPostPending || isAutoConnectPending ? <Loading /> : <></>}
         </>
       )}
     </>

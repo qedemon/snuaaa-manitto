@@ -9,6 +9,7 @@ import { timeToText } from "../Utils/Time";
 
 import Modal from "../Components/Modal";
 import LogOutButton from "../Components/LogOutButton";
+import RefreshButton from "../Components/RefreshButton";
 import HideFilter from "../Components/HideFilter";
 import Stars from "../Components/Stars";
 import Button from "../Components/Button";
@@ -16,6 +17,13 @@ import Button from "../Components/Button";
 import Moon from "../Assets/Images/Moon.svg";
 import Check from "../Assets/Images/Check.svg";
 import style from "./ManittoPage.module.css";
+
+import {
+  getAbleToSubscribe,
+  getSubscription,
+  subscribe,
+  unsubscribe,
+} from "../Utils/Subscription";
 
 function ExitConfirmModal({ onConfirm, onClose }) {
   const { user, updateUser } = useAuth(true);
@@ -100,8 +108,8 @@ function ExitCompleteModal({ onClose }) {
 
 export default function ManittoPage() {
   const navigate = useNavigate();
-  const { user } = useAuth(true);
-  const { policy } = usePolicy();
+  const { user, getUser } = useAuth(true);
+  const { policy, getPolicy } = usePolicy();
 
   const [mission, setMission] = useState(null);
   const [manitto, setManitto] = useState(null);
@@ -109,6 +117,10 @@ export default function ManittoPage() {
   const [hideState, setHideState] = useState(false);
   const [modalState, setModalState] = useState(false);
   const [exitState, setExitState] = useState(false);
+
+  const [subscription, setSubscription] = useState(null);
+  const [ableToSubscribe, setAbleToSubscribe] = useState(false);
+  const [subscriptionPending, setSubscriptionPending] = useState(false);
 
   function showModal(e) {
     e.stopPropagation();
@@ -123,75 +135,32 @@ export default function ManittoPage() {
     setExitState(true);
   }
 
-  async function subscribe(){
-    async function postSubscription(userInfo, subscription){
-      return (
-        await dataConnect.post("/push/registerPush", 
-          {
-            user_id: userInfo.user_id,
-            subscription
-          }
-        )
-      ).data;
-    }
-    try{
-      if(!("serviceWorker" in navigator)){
-          throw new Error("serviceWorker not impelemented")
-      }
-      const vapidKey = await (
-          async()=>{
-              const {result, error, key} = (await dataConnect.get("/push/getVAPIDKey")).data;
-              if(result !==0){
-                  throw error;
-              }
-              return key.public;
-          }
-      )();
-      const userInfo = await (
-          async()=>{
-              const {result, error, origin, userInfo} = (await dataConnect.get("/user/whoami")).data;
-              if(result !== 0){
-                  throw error;
-              }
-              if(origin!=="local"){
-                  throw new Error("unregisterd user");
-              }
-              return userInfo
-          }
-      )();
-      const permission = await Notification.requestPermission();
-      if(permission === "denied"){
-          throw new Error("permission denied");
-      }
+  async function handleRefresh(e) {
+    e.stopPropagation();
+    try {
+      await getUser();
+      await getPolicy();
+    } catch {}
+  }
 
-      await navigator.serviceWorker.register(`serviceworker.js`);
-      const registration = await navigator.serviceWorker.ready;
-      
-      const pushSubscription = await registration.pushManager.subscribe(
-          {
-              userVisibleOnly: true,
-              applicationServerKey: vapidKey
-          }
-      );
-      await (
-          async()=>{
-              const {error, user} = await postSubscription(userInfo, pushSubscription);
-              if(error){
-                  throw error;
-              }
-              console.log(user);
-          }
-      )()
+  async function handleSubscribe(e) {
+    e.stopPropagation();
+    setSubscriptionPending(true);
+    if (ableToSubscribe) {
+      if (subscription) {
+        if (await unsubscribe(subscription)) {
+          setSubscription(null);
+        }
+      } else {
+        const { error, subscription: pushSubscription } = await subscribe();
+        if (error) {
+          alert(error.message);
+        } else {
+          setSubscription(pushSubscription);
+        }
+      }
     }
-    catch(error){
-        console.error(error);
-        alert(error);
-    }
-    finally{
-        //alert("돌아갑니다.");
-        console.log("back");
-        //history.back();
-    }
+    setSubscriptionPending(false);
   }
 
   // 마니또, 미션 데이터 업데이트
@@ -203,17 +172,14 @@ export default function ManittoPage() {
     if (user?.following) {
       const nextManitto = user.following.find((el) => el.isValid);
       if (nextManitto) {
-        const { currentDate: leaveDate, currentTime: leaveTime } = timeToText(
-          nextManitto.exit_at
-        );
+        const leaveTime = timeToText(nextManitto.exit_at);
         setManitto({
           ...nextManitto,
-          leaveDate,
           leaveTime,
         });
       }
     }
-  }, [user]);
+  }, [policy, user]);
 
   // 유저 상태에 따라 다른 페이지로 리다이렉트
   useEffect(() => {
@@ -225,11 +191,11 @@ export default function ManittoPage() {
       } else {
         if (!user?.isEnrolled) {
           navigate("/enroll");
-        } else if (new Date(user?.Schedule?.exit_at) < Date.now()) {
+        } /*else if (new Date(user?.Schedule?.exit_at) < Date.now()) {
           if (!modalState) {
             navigate("/result");
           }
-        }
+        }*/
       }
     }
   }, [user, policy, modalState, navigate]);
@@ -245,75 +211,91 @@ export default function ManittoPage() {
     };
   }, []);
 
+  // subscription 체크
+  useEffect(() => {
+    (async () => {
+      const ableToSubscribe = getAbleToSubscribe();
+      setAbleToSubscribe(ableToSubscribe);
+      if (ableToSubscribe) {
+        setSubscription(await getSubscription());
+      }
+    })();
+  }, []);
+
   return (
     <>
-      {policy && (
+      {policy?.SHOW_FOLLOWEE && mission && manitto ? (
         <>
-          {policy?.SHOW_FOLLOWEE ? (
-            <>
-              {user?.valid && mission && manitto && (
-                <>
-                  <HideFilter hide={hideState} />
-                  <div className={style.manittoContainer}>
-                    <LogOutButton />
-                    <h1 className={style.manittoHeader}>나의 마니또</h1>
-                    <button onClick={async (event)=>{event.stopPropagation(); await subscribe();}}>구독</button>
-                    <p className={style.manittoHideAlertText}>
-                      터치해서 숨기기
-                    </p>
-                    <img className={style.manittoImage} src={Moon} alt="Moon" />
-                    <p className={style.manittoInfo}>
-                      {manitto.name} - {manitto.col_no}학번 {manitto.major}
-                    </p>
-                    <p className={style.manittoLeaveDateText}>
-                      {manitto.leaveDate} {manitto.leaveTime} 퇴거 예정
-                    </p>
-                    <p className={style.manittoMissionHeaderText}>
-                      마니또 미션
-                    </p>
-                    <Stars
-                      className={style.manittoMissionDifficulty}
-                      value={mission.difficulty}
-                    />
-                    <p className={style.manittoMissionText}>
-                      {mission.description}
-                    </p>
-                    <p className={style.manittoDescription}>
-                      주의: 마니또 예상 퇴거시간에 따라 나의 마니또가 변경 될 수
-                      있습니다. <br />
-                      마니또 배정은 식사시간 업데이트로 반영됩니다.
-                    </p>
-                    <Button className={style.exitButton} onClick={showModal}>
-                      퇴거하기
-                    </Button>
-                    {modalState &&
-                      (!exitState ? (
-                        <ExitConfirmModal
-                          onConfirm={confirmExit}
-                          onClose={closeModal}
-                        />
-                      ) : (
-                        <ExitCompleteModal onClose={closeModal} />
-                      ))}
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div className={style.manittoContainer}>
-              <LogOutButton />
-              <img
-                className={style.manittoMatchingImage}
-                src={Moon}
-                alt="Moon"
-              />
-              <h1 className={style.manittoMatchingHeader}>Matching...</h1>
-              <p className={style.manittoMatchingDescription}>
-                마니또가 매칭될 때 까지 잠시만 기다려주세요.
-              </p>
-            </div>
-          )}
+          <HideFilter hide={hideState} />
+          <div className={style.manittoContainer}>
+            <RefreshButton onClick={handleRefresh} />
+            <LogOutButton />
+            <h1 className={style.manittoHeader}>나의 마니또</h1>
+            <p className={style.manittoHideAlertText}>터치해서 숨기기</p>
+            <img className={style.manittoImage} src={Moon} alt="Moon" />
+            <p className={style.manittoInfo}>
+              {manitto.name} - {manitto.col_no}학번 {manitto.major}
+            </p>
+            <p className={style.manittoLeaveDateText}>
+              {manitto.leaveTime} 퇴거 예정
+            </p>
+            <p className={style.manittoMissionHeaderText}>마니또 미션</p>
+            <Stars
+              className={style.manittoMissionDifficulty}
+              value={mission.difficulty}
+            />
+            <p className={style.manittoMissionText}>{mission.description}</p>
+            <p className={style.manittoDescription}>
+              주의: 마니또 예상 퇴거시간에 따라 나의 마니또가 변경 될 수
+              있습니다. <br />
+              마니또 배정은 식사시간 업데이트로 반영됩니다.
+            </p>
+            <Button className={style.exitButton} onClick={showModal}>
+              퇴거하기
+            </Button>
+            {ableToSubscribe !== null ? (
+              <Button
+                className={style.subscribeButton}
+                onClick={handleSubscribe}
+                disabled={subscriptionPending}
+              >
+                {subscription ? "알람 해제" : "알람 설정"}
+              </Button>
+            ) : (
+              <></>
+            )}
+            {modalState &&
+              (!exitState ? (
+                <ExitConfirmModal
+                  onConfirm={confirmExit}
+                  onClose={closeModal}
+                />
+              ) : (
+                <ExitCompleteModal onClose={closeModal} />
+              ))}
+          </div>
         </>
+      ) : (
+        <div className={style.manittoContainer}>
+          <RefreshButton onClick={handleRefresh} />
+          <LogOutButton />
+          <img className={style.manittoMatchingImage} src={Moon} alt="Moon" />
+          <h1 className={style.manittoMatchingHeader}>Matching...</h1>
+          <p className={style.manittoMatchingDescription}>
+            마니또가 매칭될 때 까지 잠시만 기다려주세요.
+          </p>
+          {ableToSubscribe !== null ? (
+            <Button
+              className={style.subscribeButton}
+              onClick={handleSubscribe}
+              disabled={subscriptionPending}
+            >
+              {subscription ? "알람 해제" : "알람 설정"}
+            </Button>
+          ) : (
+            <></>
+          )}
+        </div>
       )}
     </>
   );
