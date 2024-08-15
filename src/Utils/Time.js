@@ -1,8 +1,8 @@
 const DATE_TIMESTAMP_LIST = [
-  "2024-02-02",
-  "2024-02-03",
-  "2024-02-04",
-  "2024-02-05",
+  "2024-08-16",
+  "2024-08-17",
+  "2024-08-18",
+  "2024-08-19",
 ];
 const TIME_TIMESTAMP_LIST = [
   "T09:00:00.000+09:00",
@@ -32,16 +32,46 @@ export function getTimeList(start, end) {
 export function timeToText(time) {
   const current = new Date(time);
 
-  const currentDateIndex = DATE_TIMESTAMP_LIST.findLastIndex((val) => {
+  const [currentDateIndex, currentTimeIndex] = (
+    (current)=>{
+      const timeTable = DATE_TIMESTAMP_LIST.reduce(
+        (prev, date, dateIndex)=>{
+          return [
+            ...prev,
+            ...TIME_TIMESTAMP_LIST.map(
+              (time, timeIndex)=>{
+                return {
+                  dateIndex,
+                  timeIndex,
+                  val: new Date(date+time)
+                }
+              }
+            )
+          ];
+        },
+        []
+      );
+      const currentTime = timeTable.findLast(
+        ({val})=>{
+          return current>=val;
+        }
+      )??timeTable[0];
+      
+      return [currentTime.dateIndex, currentTime.timeIndex];
+    }
+  )(current);
+
+  /*const currentDateIndex = DATE_TIMESTAMP_LIST.findLastIndex((val) => {
     const pivotDate = new Date(val + "T00:00:00.000Z");
     return current >= pivotDate;
   });
-  const currentDate = DATE_LIST[currentDateIndex] ?? DATE_LIST[0];
 
   const currentTimeIndex = TIME_TIMESTAMP_LIST.findLastIndex((val) => {
     const time = Number(val.slice(1, 3));
     return current.getUTCHours() >= time;
-  });
+  });*/
+
+  const currentDate = DATE_LIST[currentDateIndex] ?? DATE_LIST[0];
   const currentTime = TIME_LIST[currentTimeIndex] ?? TIME_LIST[0];
 
   return currentDate + " " + currentTime;
