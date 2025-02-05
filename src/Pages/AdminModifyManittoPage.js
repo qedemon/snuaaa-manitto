@@ -38,6 +38,7 @@ export default function AdminModifyManittoPage() {
     useState({});
 
   const [modifyState, setModifyState] = useState(false);
+  const [designatedCurrentDay, setDesignatedCurrentDay] = useState(null);
 
   async function getConnectionDocumentList() {
     [0, 1, 2].forEach(async (idx) => {
@@ -49,6 +50,9 @@ export default function AdminModifyManittoPage() {
           ...prevConnectionDocumentList,
           [idx]: response.data.data,
         }));
+        if(response?.data?.data?.current){
+
+        }
       }
     });
   }
